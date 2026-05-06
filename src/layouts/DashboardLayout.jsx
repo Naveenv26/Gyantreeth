@@ -195,7 +195,7 @@ const DashboardLayout = () => {
                   border: '1px solid var(--color-border)'
                 }}
               >
-                {(user?.role === 'student' || user?.role === 'user' || user?.role === 'trainer') && (
+                {(user?.role === 'student' || user?.role === 'user') && (
                   <>
                     <button
                       onClick={() => {
@@ -303,27 +303,29 @@ const DashboardLayout = () => {
         
         {/* Top Header - Desktop Only */}
         <header className="dashboard-header-desktop">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1 }}>
-            <div style={{ position: 'relative', maxWidth: '400px', width: '100%' }}>
-               <Search size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-light)' }} />
-               <input 
-                type="text" 
-                placeholder="Search resources, courses..." 
-                style={{ 
-                  width: '100%', 
-                  padding: '0.75rem 1rem 0.75rem 2.75rem', 
-                  borderRadius: 'var(--radius-md)', 
-                  border: '1px solid var(--color-border)', 
-                  backgroundColor: 'var(--color-surface-muted)',
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  color: 'var(--color-text)'
-                }}
-               />
+          <div style={{ maxWidth: '2400px', margin: '0 auto', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1 }}>
+              <div style={{ position: 'relative', maxWidth: '400px', width: '100%' }}>
+                <Search size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-light)' }} />
+                <input 
+                  type="text" 
+                  placeholder="Search resources, courses..." 
+                  style={{ 
+                    width: '100%', 
+                    padding: '0.75rem 1rem 0.75rem 2.75rem', 
+                    borderRadius: 'var(--radius-md)', 
+                    border: '1px solid var(--color-border)', 
+                    backgroundColor: 'var(--color-surface-muted)',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    color: 'var(--color-text)'
+                  }}
+                />
+              </div>
             </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-            <ThemeToggle />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+              <ThemeToggle />
+            </div>
           </div>
         </header>
 
@@ -340,7 +342,7 @@ const DashboardLayout = () => {
 
         {/* Page Content with Motion Orchestration */}
         <div className="dashboard-content-scroll" ref={scrollRef} style={{ padding: 'var(--page-padding)' }}>
-          <div className="max-container" style={{ maxWidth: '1600px', margin: '0 auto', width: '100%' }}>
+          <div style={{ maxWidth: '2400px', margin: '0 auto', width: '100%' }}>
                 <Outlet />
           </div>
         </div>

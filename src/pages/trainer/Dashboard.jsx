@@ -130,27 +130,30 @@ const TrainerDashboard = () => {
       
       const finalStudents = allEnrollments.sort((a, b) => b.progress - a.progress);
 
-      // 6. Aggregate ALL live sessions from course modules (Both Previous and Current)
+      // 6. Aggregate ALL live sessions and filter/sort (Upcoming and Active only)
+      const now = new Date();
       const allLive = coursesResult
         .flatMap(c => c.liveSessions || [])
+        .map(ls => {
+          const sTime = new Date(ls.start_time);
+          const eTime = new Date(ls.end_time);
+          const forceEndThresh = new Date(eTime.getTime() + 2 * 60 * 60 * 1000); // 2h safety margin
+          
+          // Strict live check: Backend says live AND it's not way past, OR it's within scheduled time
+          const isActuallyLive = (ls.status === 'live' && now <= forceEndThresh) || (now >= sTime && now <= eTime);
+          
+          return { ...ls, isActuallyLive };
+        })
+        .filter(ls => {
+          // Keep if it's live now or starts in the future
+          return ls.isActuallyLive || new Date(ls.start_time) > now;
+        })
         .sort((a, b) => {
-          // Sort order: 1. Live Now, 2. Upcoming (Soonest first), 3. Past (Latest first)
-          const isALive = a.status === 'live';
-          const isBLive = b.status === 'live';
-          if (isALive && !isBLive) return -1;
-          if (!isALive && isBLive) return 1;
+          // Sort order: 1. Live Now, 2. Upcoming (Soonest first)
+          if (a.isActuallyLive && !b.isActuallyLive) return -1;
+          if (!a.isActuallyLive && b.isActuallyLive) return 1;
           
-          const now = new Date();
-          const aTime = new Date(a.start_time);
-          const bTime = new Date(b.start_time);
-          
-          const isAUpcoming = aTime > now;
-          const isBUpcoming = bTime > now;
-          
-          if (isAUpcoming && isBUpcoming) return aTime - bTime; // Soonest upcoming first
-          if (!isAUpcoming && !isBUpcoming) return bTime - aTime; // Newest past first
-          
-          return isAUpcoming ? -1 : 1; // Upcoming before past
+          return new Date(a.start_time) - new Date(b.start_time);
         });
 
       const payload = {
@@ -298,10 +301,10 @@ const TrainerDashboard = () => {
                               <div>
                                 <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.3rem' }}>{session.title || 'Live Broadcast'}</div>
                                 <div style={{ fontSize: '0.75rem', color: '#4f46e5', fontWeight: 800 }}>
-                                  {session.status === 'live' ? '🟢 HAPPENING NOW' : new Date(session.start_time).toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                  {session.isActuallyLive ? '🟢 HAPPENING NOW' : new Date(session.start_time).toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                 </div>
                               </div>
-                              <a href={session.meeting_url} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '10px', background: session.status === 'live' ? '#ef4444' : '#4f46e5', color: 'white' }}>
+                              <a href={session.meeting_url} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '10px', background: session.isActuallyLive ? '#ef4444' : '#4f46e5', color: 'white' }}>
                                 <ExternalLink size={16} />
                               </a>
                            </motion.div>
